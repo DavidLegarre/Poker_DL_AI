@@ -51,6 +51,18 @@ class Player:
     def __init__(self, money):
         self.money = money
         self.hand = Hand([])
+        self.bet = 0
+        self.folded = False
+
+    # Player Actions
+    def call(self, amount):
+        self.bet += amount
+
+    def raise_bet(self, amount):
+        self.bet += amount
+    
+    def reset_bet(self):
+        self.bet = 0
 
 
 class Deck:
