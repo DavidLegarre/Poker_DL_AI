@@ -63,6 +63,12 @@ class Player:
     
     def reset_bet(self):
         self.bet = 0
+    
+    def get_payed(self, amount):
+        self.money += amount
+    
+    def pay(self, amount):
+        self.money -= amount
 
 
 class Deck:
