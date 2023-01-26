@@ -47,11 +47,13 @@ class Deck:
 
 
 def get_high_card(hand):
-    values = [card.rank for card in hand]
-    suits = [card.rank for card in hand]
-    card_values = []
-    for value in values:
-        card_values.append(rank_values[value])
+    max = 0
+
+    for card in hand:
+        if rank_values[card.rank] > max:
+            max = rank_values[card.rank]
+    
+    return card(max, rank_values.inverse[max])
 
     
 
@@ -67,7 +69,8 @@ def royal_flush(hand):
     royal_flush_values = ['10', 'J', 'Q', 'K', 'A']
 
     if set(values) == set(royal_flush_values):
-        return True
+        high_card = get_high_card(hand)
+        return True, high_card
     else:
         return False
 
