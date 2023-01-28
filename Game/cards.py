@@ -7,13 +7,14 @@ from bidict import bidict
 card = collections.namedtuple('Card', ['rank', 'suit'])
 poker_hands = ['Royal Flush', 'Straight Flush', 'Four of a Kind', 'Full House',
                'Flush', 'Straight', 'Three of a Kind', 'Two Pair', 'One Pair', 'High Card']
-ranks = [str(n) for n in range(2, 11)] + list('JQKA')
-suits = 'spades diamonds clubs hearts'.split()
-#rank_values = dict(zip(ranks, range(14)))
-rank_values = bidict(dict(zip(ranks, range(14))))
+# rank_values = dict(zip(ranks, range(14)))
+# rank_values = bidict(dict(zip(ranks, range(14))))
 
 
 class Deck:
+    ranks = [str(n) for n in range(2, 11)] + list('JQKA')
+    suits = 'spades diamonds clubs hearts'.split()
+
     def __init__(self) -> None:
         self._cards = [card(rank, suit) for rank in ranks
                        for suit in suits]
@@ -36,6 +37,9 @@ class Deck:
         for _ in range(5):
             self.deal_card(player)
 
+    def get_card_rank(self, card):
+        return self.ranks.index(card.rank)
+
     def __len__(self):
         return len(self._cards)
 
@@ -50,16 +54,14 @@ def get_high_card(hand):
     max = 0
 
     for card in hand:
-        if rank_values[card.rank] > max:
-            max = rank_values[card.rank]
-    
-    return card(max, rank_values.inverse[max])
+        if Deck.get_card_rank(card) > max:
+            max = card
 
-    
+    return max
 
 
 def royal_flush(hand):
-    values = [card.rank for card in hand]
+    ranks = [card.rank for card in hand]
     suits = [card.suit for card in hand]
 
     # Check if all cards are of the same rank
@@ -68,16 +70,95 @@ def royal_flush(hand):
 
     royal_flush_values = ['10', 'J', 'Q', 'K', 'A']
 
-    if set(values) == set(royal_flush_values):
-        high_card = get_high_card(hand)
-        return True, high_card
+    if set(ranks) == set(royal_flush_values):
+        return True
     else:
         return False
 
 
 def straight_flush(hand):
-    values = [card.rank for card in hand]
+    ranks = [card.rank for card in hand]
+    suits = [card.suit for card in hand]
 
+    if (not all(suit == suits[0] for suit in suits)):
+        return False
+
+    ranks_values = [Deck.get_card_rank(rank) for rank in ranks]
+    ranks_values = sorted(ranks_values)
+    prev_rank = 0
+
+    for rank in ranks_values[1:]:
+        if rank - prev_rank != 1:
+            return False
+        prev_rank = rank
+
+    return True
+
+
+def four_of_a_kind(hand):
+    ranks = [card.rank for card in hand]
+
+    counter = collections.Counter(ranks)
+
+    for rank in ranks:
+        if counter[rank] == 4:
+            return True
+
+    return False
+
+
+def full_house(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [2, 3]:
+        return True
+    return False
+
+
+def flush(hand):
+    suits_counts = list(collections.Counter(
+        card.suit for card in hand).values())
+    if suits_counts == [5]:
+        return True
+    return False
+
+
+def straight(hand):
+    ranks_values = [Deck.get_card_rank(card.rank) for card in hand]
+    ranks_values.sort()
+    for i in range(1,len(ranks_values)):
+        if ranks_values[i] - ranks_values[i-1] != 1:
+            return False
+    return True
+
+def three_of_a_kind(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [1,1,3]:
+        return True
+    return False
+
+def two_pair(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [1,2,2]:
+        return True
+    return False
+    
+def one_pair(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [1,1,1,2]:
+        return True
+    return False
 
 def compare_plays(player1, player2):
     """Compare two hands and determine a winner
