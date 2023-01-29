@@ -56,10 +56,10 @@ class Deck:
 
 
 def get_high_card(hand):
-    max = 0
+    max = Card("2", "spades")
 
     for card in hand:
-        if Deck.ranks.index(card) > max:
+        if Deck.ranks.index(card.rank) > Deck.ranks.index(max.rank):
             max = card
 
     return max
@@ -216,6 +216,12 @@ def compare_plays(player1, player2):
         plays.append(hand_i)
 
     print(plays)
+
+    print(f"Player 1:\n {player1}")
+    print(f"Player 2:\n {player2}")
+
+    print(f"Player 1 has {Deck.poker_hands[plays[0]]}")
+    print(f"Player 2 has {Deck.poker_hands[plays[1]]}")
 
     if plays[0] > plays[1]:
         print("Hand 1 wins\n")
