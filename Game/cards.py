@@ -2,18 +2,30 @@ import collections
 import random as rd
 
 
+<<<<<<< HEAD
 Card = collections.namedtuple('Card', ['rank', 'suit'])
+=======
+
+card = collections.namedtuple('Card', ['rank', 'suit'])
+poker_hands = ['Royal Flush', 'Straight Flush', 'Four of a Kind', 'Full House',
+               'Flush', 'Straight', 'Three of a Kind', 'Two Pair', 'One Pair', 'High Card']
+# rank_values = dict(zip(ranks, range(14)))
+# rank_values = bidict(dict(zip(ranks, range(14))))
+>>>>>>> f85f3f1bb7433fd5271bbda1025d16cbc099d85a
 
 
 class Deck:
     ranks = [str(n) for n in range(2, 11)] + list('JQKA')
     suits = 'spades diamonds clubs hearts'.split()
+<<<<<<< HEAD
     poker_hands = list(reversed(
         [
             'Royal Flush', 'Straight Flush', 'Four of a Kind', 'Full House',
             'Flush', 'Straight', 'Three of a Kind', 'Two Pair', 'One Pair',
             'High Card'
         ]))
+=======
+>>>>>>> f85f3f1bb7433fd5271bbda1025d16cbc099d85a
 
     def __init__(self) -> None:
         self._cards = [Card(rank, suit) for rank in self.ranks
@@ -169,6 +181,85 @@ def one_pair(hand):
         return True
     return False
 
+    if (not all(suit == suits[0] for suit in suits)):
+        return False
+
+    ranks_values = [Deck.get_card_rank(rank) for rank in ranks]
+    ranks_values = sorted(ranks_values)
+    prev_rank = 0
+
+    for rank in ranks_values[1:]:
+        if rank - prev_rank != 1:
+            return False
+        prev_rank = rank
+
+    return True
+
+
+def four_of_a_kind(hand):
+    ranks = [card.rank for card in hand]
+
+    counter = collections.Counter(ranks)
+
+    for rank in ranks:
+        if counter[rank] == 4:
+            return True
+
+    return False
+
+
+def full_house(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [2, 3]:
+        return True
+    return False
+
+
+def flush(hand):
+    suits_counts = list(collections.Counter(
+        card.suit for card in hand).values())
+    if suits_counts == [5]:
+        return True
+    return False
+
+
+def straight(hand):
+    ranks_values = [Deck.get_card_rank(card.rank) for card in hand]
+    ranks_values.sort()
+    for i in range(1,len(ranks_values)):
+        if ranks_values[i] - ranks_values[i-1] != 1:
+            return False
+    return True
+
+def three_of_a_kind(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [1,1,3]:
+        return True
+    return False
+
+def two_pair(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [1,2,2]:
+        return True
+    return False
+    
+def one_pair(hand):
+    rank_counts = collections.Counter(card.rank for card in hand)
+    count_list = list(rank_counts.values())
+    count_list.sort()
+
+    if count_list == [1,1,1,2]:
+        return True
+    return False
 
 def compare_plays(player1, player2):
     """Compare two hands and determine a winner
