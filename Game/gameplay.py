@@ -15,6 +15,7 @@ class Gameplay:
         names = ["Alice", "Bob"]
         self.deck = Deck()
         self.deck.shuffle()
+        print(self.deck)
         self.players = []
 
         # Initialize players

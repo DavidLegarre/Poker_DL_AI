@@ -2,18 +2,31 @@ import collections
 import random as rd
 
 
-Card = collections.namedtuple('Card', ['rank', 'suit'])
+# Card = collections.namedtuple('Card', ['rank', 'suit'])
 
+
+class Card:
+    ranks = [str(n) for n in range(2, 11)] + list('JQKA')
+
+    def __init__(self, rank, suit):
+        self.rank = rank
+        self.suit = suit
+
+    def __lt__(self, other):
+        return self.ranks.index(self.rank) < self.ranks.index(other.rank)
+
+    def __repr__(self) -> str:
+        return f"{self.rank} of {self.suit}"
+
+    def __str__(self) -> str:
+        return f"{self.rank} of {self.suit}"
 
 class Deck:
     ranks = [str(n) for n in range(2, 11)] + list('JQKA')
     suits = 'spades diamonds clubs hearts'.split()
-    poker_hands = list(reversed(
-        [
-            'Royal Flush', 'Straight Flush', 'Four of a Kind', 'Full House',
-            'Flush', 'Straight', 'Three of a Kind', 'Two Pair', 'One Pair',
-            'High Card'
-        ]))
+    poker_hands = ["High Card", "One Pair", "Two Pair", "Three of a Kind",
+                   "Straight", "Flush", "Full House", "Four of a Kind",
+                   "Straight Flush", "Royal Flush"]
 
     def __init__(self) -> None:
         self._cards = [Card(rank, suit) for rank in self.ranks
@@ -47,19 +60,18 @@ class Deck:
         return self._cards[position]
 
     def __repr__(self):
-        str_cards = [card.rank+' of '+card.suit for card in self._cards]
-        return f"{','.join(str_cards)}"
+        return f"{','.join(str(card) for card in self._cards)}"
 
     def __str__(self) -> str:
-        str_cards = [card.rank+' of '+card.suit for card in self._cards]
-        return f"{', '.join(str_cards)}"
+        return f"{', '.join(str(card) for card in self._cards)}"
 
 
 def get_high_card(hand):
     max = Card("2", "spades")
 
     for card in hand:
-        if Deck.ranks.index(card.rank) > Deck.ranks.index(max.rank):
+        # if Deck.ranks.index(card.rank) > Deck.ranks.index(max.rank):
+        if card > max:
             max = card
 
     return max
@@ -233,6 +245,9 @@ def compare_plays(player1, player2):
         # TODO: There's the issue of what happens if two hands tie
         high_card1 = get_high_card(hand1)
         high_card2 = get_high_card(hand2)
+        print("Tie")
+        print(f"Player 1 has high card {high_card1}")
+        print(f"Player 2 has high card {high_card2}")
         if high_card1 > high_card2:
             print("Hand 1 wins\n")
             return player1
