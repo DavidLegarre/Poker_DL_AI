@@ -69,6 +69,7 @@ class Player:
     
     def pay(self, amount):
         self.money -= amount
+    
 
 
 class Deck:
