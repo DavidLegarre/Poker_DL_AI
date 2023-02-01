@@ -21,6 +21,7 @@ class Gameplay:
     def __init__(self, num_players):
         self.num_players = num_players
         names = ["Alice", "Bob"]
+        self.current_bid = 0
         self.deck = Deck()
         self.deck.shuffle()
         print(self.deck)
@@ -39,14 +40,16 @@ class Gameplay:
         check = "3"
         call = "4"
 
-    def turn(self, i, player, current_bid):
-        print(f"Player {i} turn:\n")
-        print(f"The current bid is: {current_bid}\n")
-        print(f"Player {i} current bid is {player._bet}\n")
-        print(f"Player {i}'s hand:\n {player}\n")
-        print("1) Raise bet\t 2) Fold\t 3) Check\t 4) Call")
+    def turn(self, i, player, current_bid, action=0, debug=True):
+        if debug:
+            print(f"Player {i} turn:\n")
+            print(f"The current bid is: {current_bid}\n")
+            print(f"Player {i} current bid is {player._bet}\n")
+            print(f"Player {i}'s hand:\n {player}\n")
+            print("1) Raise bet\t 2) Fold\t 3) Check\t 4) Call")
         while True:
-            action = input("")
+            if debug:
+                action = input("")
             match action:
                 case self.Actions.raise_bet.value:
                     amount = int(input("Raising bet by: "))
@@ -60,6 +63,8 @@ class Gameplay:
                             "You can't check when your bet is not equal\
                             to the current bid"
                         )
+                        if not debug:
+                            action = self.Actions.call.value
                         continue
                 case self.Actions.call.value:
                     player._bet = current_bid
@@ -77,22 +82,25 @@ class Gameplay:
 
         winner.reset_bet()
 
-    def play(self):
-        current_bid = MIN_BET
+    def play(self, debug=True):
+        self.current_bid = MIN_BET
         ended_turns = 0
 
         # self.deck.shuffle()
-        clear()
+        # clear()
+        if debug:
+            clear()
 
         for i, player in enumerate(self.players):
             i += 1
-            current_bid, player_action = self.turn(i, player, current_bid)
+            self.current_bid, player_action = self.turn(
+                i, player, self.current_bid)
 
             # If any player folds the other one wins
             if player_action is self.Actions.fold.value:
                 winner = [player for player in self.players
                           if not player._folded][0]
-                self.wins(winner, current_bid)
+                self.wins(winner, self.current_bid)
                 ended_turns += 1
                 print(winner)
                 break
@@ -108,27 +116,38 @@ class Gameplay:
                 # For now only 2 players are allowed
                 winner = compare_plays(self.players[0], self.players[1])
                 winner_i = self.players.index(winner)
-                print(f"Player {winner_i+1} has won the round")
-                self.wins(winner, current_bid)
-        print("New Game? Y/N")
-        option = input("")
-        while True:
-            match option.lower():
-                case "y":
-                    return True
-                case "n":
-                    print("Well played!")
-                    print("Goodbye!")
-                    return False
-                case _:
-                    print("Wrong input try again (Y/N):")
-                    option = input("")
+                if debug:
+                    print(f"Player {winner_i+1} has won the round")
+                self.wins(winner, self.current_bid)
+
+        if debug:
+            print("New Game? Y/N")
+            option = input("")
+            while True:
+                match option.lower():
+                    case "y":
+                        return True
+                    case "n":
+                        print("Well played!")
+                        print("Goodbye!")
+                        return False
+                    case _:
+                        print("Wrong input try again (Y/N):")
+                        option = input("")
 
     def isKeepPlaying(self):
         for player in self.players:
             if player._money <= 0:
                 return False
         return True
+
+    def getState(self):
+        state = []
+        for player in self.players:
+            state.append(player)
+        state.append(self.current_bid)
+
+        return state
 
 
 def main():
